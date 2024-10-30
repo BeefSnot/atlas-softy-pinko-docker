@@ -1,32 +1,35 @@
-version: '3.8'
-
 services:
-  frontend:
+  back-end-1:
     build:
-      context: ./front-end # Path to the front-end Dockerfile
-    ports:
-      - "50004:80"  # Expose port 80 of the front-end service on host port 50004
-    networks:
-      - app-network
+      context: ./back-end
+      dockerfile: Dockerfile
+    image: softy-pinko-back-end:task6
 
-  backend:
+  back-end-2:
     build:
-      context: ./back-end  # Path to the back-end Dockerfile
-    expose:
-      - "5000"
-    networks:
-      - app-network
+      context: ./back-end
+      dockerfile: Dockerfile
+    image: softy-pinko-back-end:task6
+
+  front-end:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    image: softy-pinko-front-end:task6
+    depends_on:
+      - back-end-1
+      - back-end-2
 
   proxy:
-    build: ./proxy  # Path to the Nginx proxy Dockerfile
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    image: proxy:task6
     ports:
-      - "50003:80"   # Expose port 80 of the proxy service on host port 50003
-    networks:
-      - app-network
+      - 80:80
     depends_on:
-      - frontend
-      - backend
+      - back-end-1
+      - back-end-2
 
-networks:
-  app-network:
-    driver: bridge
+volumes:
+  databases:
